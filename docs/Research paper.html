@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Refresh Opportunity Scoring</title>
+<style>
+:root{--ink:#e8f5f3;--muted:#a8c8c5;--line:#214746;--panel:#102d2d;--accent:#35d59b}
+*{box-sizing:border-box}
+body{font:16px/1.6 system-ui,sans-serif;max-width:900px;margin:auto;padding:24px;color:var(--ink);background:#061c1d;background-image:radial-gradient(circle at 8% 0%,#164b49 0,transparent 34%),radial-gradient(circle at 92% 18%,#103b4b 0,transparent 32%),linear-gradient(145deg,#061c1d 0%,#092b2a 48%,#071d2d 100%);background-attachment:fixed}
+h1,h2{color:#bff5e4}.hero{background:linear-gradient(135deg,#123f3d,#0b2c3a);color:var(--ink);padding:28px;border:1px solid #2b6560;border-radius:14px;box-shadow:0 16px 45px #0005}.hero h1{color:#effff9}.hero p{color:var(--muted)}.card{background:linear-gradient(145deg,#102e2dE8,#0b252cE8);padding:20px;margin:18px 0;border:1px solid var(--line);border-radius:12px;box-shadow:0 8px 28px #0003}.card p,.card li{color:#c8ddda}table{border-collapse:collapse;width:100%;overflow:hidden}td,th{padding:9px;border-bottom:1px solid var(--line);text-align:left}th{color:#bff5e4}.metric{font-size:1.35rem;font-weight:700;color:var(--accent)}code{color:#bff5e4;background:#153b3b;padding:2px 4px;border-radius:4px}a{color:#61e5ba}
+</style>
+</head>
+<body>
+<header class="hero"><h1>Refresh Opportunity Scoring</h1><p>A reproducible, client-held-out content review queue built on anonymized FlyRank search data.</p></header>
+<section class="card"><h2>Abstract</h2><p>This project asks which content pages should be inspected first when an editor has limited refresh capacity. I used the bundled FlyRank anonymized starter release, one row per content item, with trailing 90-day search and engagement measurements. I compared transparent rules, logistic regression, a shallow decision tree, and a random forest using the same client-held-out split and ranking metrics. The random forest measured ROC AUC <span class="metric">0.750</span>, average precision <span class="metric">0.618</span>, and Precision@50 <span class="metric">0.740</span>, versus 0.627, 0.468, and 0.240 for the baseline. This is directional decision support for human review, not proof that refreshing causes traffic recovery.</p></section>
+<section class="card"><h2>Problem</h2><p>Editors need a repeatable way to choose which pages to inspect first. The output is a ranked queue with reason codes and a human-review action; it never publishes or edits content automatically.</p></section>
+<section class="card"><h2>Data and methodology</h2><p>The analysis uses the 30,000-row anonymized starter release covering 32 pseudonymized clients. Rows without impressions and content younger than 90 days were excluded. The label is <code>trend_direction == down</code>. Label-derived fields, identifiers, provider metadata, and last-30-day outcome fields were excluded from features. A random forest with seed 42 was evaluated with complete clients held out.</p></section>
+<section class="card"><h2>Results</h2><table><tr><th>Method</th><th>ROC AUC</th><th>Avg precision</th><th>Precision@50</th></tr><tr><td>Rules baseline</td><td>0.627</td><td>0.468</td><td>0.240</td></tr><tr><td>Logistic regression</td><td>0.700</td><td>0.522</td><td>0.400</td></tr><tr><td>Decision tree</td><td>0.742</td><td>0.575</td><td>0.540</td></tr><tr><td><b>Random forest</b></td><td><b>0.750</b></td><td><b>0.618</b></td><td><b>0.740</b></td></tr></table><p>The observed decline-label base rate in the full starter slice was 0.542.</p></section>
+<section class="card"><h2>Ranked recommendations</h2><ol><li>Inspect the highest-scored pages first.</li><li>Verify decline evidence, search intent, accuracy, ownership, accessibility, and context.</li><li>Use stale-update or thin-content codes as review prompts, not automatic prescriptions.</li><li>Re-evaluate with a fresh labeled window before claiming improvement.</li></ol></section>
+<section class="card"><h2>Limitations and honest framing</h2><p>This is an association with an observed decline proxy, not a causal study. It does not predict Google's algorithm, guarantee future traffic, or show that a refresh will produce recovery. Missingness, fixed snapshot timing, client mix, and small denominators limit generalization. Human review is mandatory.</p></section>
+<section class="card"><h2>Reproducibility</h2><p>Run the notebooks from the repository root with Python 3.11 and <code>requirements.txt</code>. See <a href="../work/notebooks/w05_model.ipynb">ML-08 model</a>, <a href="../work/notebooks/w06_validation_audit.ipynb">ML-09 validation</a>, and <a href="../work/notebooks/w07_action_playbook.ipynb">ML-10 action playbook</a>. The queue is exported to <code>work/outputs/content_action_queue.csv</code>.</p></section>
+<footer class="card"><h2>Acknowledgments and data credit</h2><p>Built on the <a href="https://flyrank.ai/">FlyRank ML Internship dataset</a>.</p></footer>
+</body>
+</html>
